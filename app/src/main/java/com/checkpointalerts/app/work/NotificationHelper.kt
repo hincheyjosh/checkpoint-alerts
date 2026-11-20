@@ -12,8 +12,11 @@ import com.checkpointalerts.app.MainActivity
 import com.checkpointalerts.app.R
 import com.checkpointalerts.app.data.Checkpoint
 
-/** Day-of notifications. One notification per checkpoint day: a single
- *  checkpoint gets a detailed notification; several get a short summary. */
+/** Notifications for checkpoints happening today or tomorrow. Checkpoints
+ *  usually run around midnight, so the warning covers both days: a
+ *  checkpoint dated tomorrow warns today ("tomorrow") and again tomorrow
+ *  ("today"). One notification per checkpoint per day: a single checkpoint
+ *  gets a detailed notification; several get a short summary. */
 object NotificationHelper {
 
     const val CHANNEL_ID = "checkpoint_alerts"
@@ -25,13 +28,17 @@ object NotificationHelper {
             "Checkpoint alerts",
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Alerts on days when a checkpoint is happening in your area"
+            description = "Alerts the day before and the day a checkpoint happens in your area"
         }
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.createNotificationChannel(channel)
     }
 
-    fun notifyToday(context: Context, checkpoints: List<Checkpoint>) {
+    /**
+     * Notify about [checkpoints] happening on [day] — "today" or
+     * "tomorrow", which is what the titles say.
+     */
+    fun notifyCheckpoints(context: Context, checkpoints: List<Checkpoint>, day: String) {
         if (checkpoints.isEmpty()) return
         val openApp = PendingIntent.getActivity(
             context,
@@ -47,7 +54,7 @@ object NotificationHelper {
             val text = "${c.type.label} checkpoint — ${c.location} · ${c.timeText}"
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_checkpoint)
-                .setContentTitle("Checkpoint today in ${c.county} County")
+                .setContentTitle("Checkpoint $day in ${c.county} County")
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 .setContentIntent(openApp)
@@ -59,17 +66,17 @@ object NotificationHelper {
             val lines = checkpoints.sortedBy { it.county }.take(3).joinToString("\n") {
                 "• ${it.county} County — ${it.location} · ${it.timeText}"
             }
-            val text = "${checkpoints.size} checkpoints today in " +
+            val text = "${checkpoints.size} checkpoints $day in " +
                 counties.joinToString(", ") + ":\n$lines"
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_checkpoint)
-                .setContentTitle("${checkpoints.size} checkpoints today")
-                .setContentText("${checkpoints.size} checkpoints today in ${counties.joinToString(", ")}")
+                .setContentTitle("${checkpoints.size} checkpoints $day")
+                .setContentText("${checkpoints.size} checkpoints $day in ${counties.joinToString(", ")}")
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 .setContentIntent(openApp)
                 .setAutoCancel(true)
                 .build()
-            nm.notify("today-summary".hashCode(), notification)
+            nm.notify("$day-summary".hashCode(), notification)
         }
     }
 }

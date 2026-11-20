@@ -23,7 +23,8 @@ data class UiState(
     val scope: AlertScope = AlertScope.WHOLE_STATE,
     val homeCounty: String = "",
     val showAll: Boolean = false,
-    val notificationGranted: Boolean = false
+    val notificationGranted: Boolean = false,
+    val notificationsEnabled: Boolean = true
 )
 
 class CheckpointViewModel(application: Application) : AndroidViewModel(application) {
@@ -33,9 +34,12 @@ class CheckpointViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _showAll = MutableStateFlow(false)
     private val _notificationGranted = MutableStateFlow(false)
+    private val _notificationsEnabled = MutableStateFlow(settings.notificationsEnabled)
     private val _scope = MutableStateFlow(settings.scope)
     private val _homeCounty = MutableStateFlow(settings.homeCounty)
 
+    // combine() only has overloads up to 5 flows in this coroutines version,
+    // so the 6th flow joins through the 2-flow extension below.
     val uiState: StateFlow<UiState> = combine(
         repo.state, _showAll, _notificationGranted, _scope, _homeCounty
     ) { repoState, showAll, granted, scope, homeCounty ->
@@ -54,6 +58,8 @@ class CheckpointViewModel(application: Application) : AndroidViewModel(applicati
             showAll = showAll,
             notificationGranted = granted
         )
+    }.combine(_notificationsEnabled) { state, enabled ->
+        state.copy(notificationsEnabled = enabled)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState())
 
     init {
@@ -81,6 +87,11 @@ class CheckpointViewModel(application: Application) : AndroidViewModel(applicati
 
     fun setNotificationGranted(granted: Boolean) {
         _notificationGranted.value = granted
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        settings.notificationsEnabled = enabled
+        _notificationsEnabled.value = enabled
     }
 
     private fun inScope(checkpoint: Checkpoint, scope: AlertScope, homeCounty: String): Boolean {

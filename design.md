@@ -13,10 +13,19 @@ Modern Android app that checks for law enforcement checkpoints (sobriety + licen
 - Notification on the day a checkpoint is happening, with location and time.
 
 ## Data sources (verified Nov 20, 2026)
-- Tennessee law requires agencies to announce sobriety checkpoints in advance. THP publishes dates + exact locations via press releases (picked up by local news: WVLT, Crockett Chronicle, etc.).
+- Tennessee law requires agencies to announce sobriety checkpoints in advance. THP publishes the full month's list as a PDF on tn.gov: `tn.gov/content/dam/tn/safety/documents/thp-checkpoints/{YYYY}/{MONTH}.pdf` (e.g. `2026/NOVEMBER.pdf`). All 8 districts, DATE / COUNTY / LOCATION / TYPE rows. The app fetches the current month + next month.
+- **Tennessee uses ONLY that official list.** v1.0 also read aggregators (duiblock.net, duicheckpointlocator.com) that republish the same announcements; the two copies worded each location differently, so the same checkpoint showed up twice. One official source = one entry per checkpoint. The parser was validated against the real November 2026 PDF (75 rows → 72 checkpoints after dropping 3 seat-belt rows, 0 duplicates), including its wrapped locations and the PDF's own "Sobreity" typo.
 - No single official state API/feed. Per-state source handling required; some states ban sobriety checkpoints entirely.
-- Aggregators that republish announced TN checkpoints: duiblock.net, duicheckpointlocator.com.
 - Example (Fri Nov 20, 2026): Sevier County — Collier Drive at Rainbow Road; Jefferson County — SR 113 near Nina Road.
+
+## v1.1 (Nov 20, 2026)
+- Tennessee source switched to the official THP monthly PDF only (above) — fixes the double-reporting Joshua found after installing v1.0.
+- Added a notifications on/off switch in Settings (on by default). When off, the list still refreshes daily — it just never notifies.
+- PDF parsing via pdfbox-android (PDFTextStripper, sortByPosition); parser unit tests include the real November 2026 PDF text.
+
+## v1.2 (Nov 20, 2026)
+- Notifications now warn on BOTH days around a checkpoint: the day before and the day of. Checkpoints usually run around midnight, so a checkpoint dated tomorrow warns today ("tomorrow") and again tomorrow ("today") — one warning per checkpoint per day, via the existing per-day notified set.
+- Every screen (Home, Details, Settings) has a "Made with 🌿" footer at the bottom.
 
 ## Build
 - Native Android (Kotlin). Toolchain setup (JDK 17 + Android SDK) delegated to subagent Nov 20, 2026 — pending report.

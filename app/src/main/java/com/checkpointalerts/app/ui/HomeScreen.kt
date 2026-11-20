@@ -125,7 +125,7 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
-                                    "We'll alert you on the day a checkpoint happens in your area.",
+                                    "We'll alert you the day before and the day a checkpoint happens in your area.",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -263,6 +263,10 @@ fun HomeScreen(
                         )
                     }
                 }
+            }
+
+            item {
+                MadeWithLoveFooter()
             }
         }
     }
@@ -468,6 +472,8 @@ fun DetailScreen(checkpoint: Checkpoint, onBack: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(Modifier.weight(1f))
+            MadeWithLoveFooter()
         }
     }
 }

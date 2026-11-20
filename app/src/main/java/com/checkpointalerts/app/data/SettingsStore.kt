@@ -36,6 +36,12 @@ class SettingsStore(context: Context) {
         get() = prefs.getLong(KEY_LAST_UPDATED, 0L)
         set(value) = prefs.edit().putLong(KEY_LAST_UPDATED, value).apply()
 
+    /** Master switch for day-of checkpoint alerts. On by default; the list
+     *  still refreshes when it is off, it just never notifies. */
+    var notificationsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, value).apply()
+
     /** True once the app has asked for notification permission at least once,
      *  so first launch prompts but later launches don't nag. */
     var notificationPromptShown: Boolean
@@ -70,6 +76,7 @@ class SettingsStore(context: Context) {
         private const val KEY_COUNTY = "home_county"
         private const val KEY_LAST_UPDATED = "last_updated_ms"
         private const val KEY_NOTIF_PROMPTED = "notif_prompt_shown"
+        private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
         private const val KEY_NOTIFY_DAY = "notify_epoch_day"
         private const val KEY_NOTIFIED = "notified_ids"
     }

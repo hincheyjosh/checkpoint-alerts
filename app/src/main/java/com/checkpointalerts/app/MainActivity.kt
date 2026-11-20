@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         onBack = { screen = Screen.Home },
                         onScopeChange = { viewModel.setScope(it) },
                         onCountyChange = { viewModel.setHomeCounty(it) },
+                        onNotificationsEnabledChange = { viewModel.setNotificationsEnabled(it) },
                         onRequestNotificationPermission = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

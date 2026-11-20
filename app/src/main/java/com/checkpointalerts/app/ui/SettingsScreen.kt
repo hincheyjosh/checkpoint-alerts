@@ -26,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -50,6 +51,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onScopeChange: (AlertScope) -> Unit,
     onCountyChange: (String) -> Unit,
+    onNotificationsEnabledChange: (Boolean) -> Unit,
     onRequestNotificationPermission: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -176,10 +178,37 @@ fun SettingsScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Column(Modifier.padding(16.dp)) {
-                        if (uiState.notificationGranted) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    "Checkpoint alerts",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    "Notify me the day before and the day a checkpoint happens in my area",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = uiState.notificationsEnabled,
+                                onCheckedChange = onNotificationsEnabledChange
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        if (!uiState.notificationsEnabled) {
                             Text(
-                                "Notifications are on. You'll be alerted on the day " +
-                                    "a checkpoint happens in your area.",
+                                "Alerts are turned off. The list still updates " +
+                                    "when you open the app — you just won't be notified.",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        } else if (uiState.notificationGranted) {
+                            Text(
+                                "Notifications are on. You'll be alerted the day before " +
+                                    "and the day a checkpoint happens in your area.",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         } else {
@@ -210,10 +239,11 @@ fun SettingsScreen(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            "Checkpoints are listed only as publicly announced by " +
-                                "the Tennessee Highway Patrol and republished by " +
-                                "public listing sites. Announcements can change, " +
-                                "and not every checkpoint may appear here.",
+                            "Checkpoint listings come straight from the " +
+                                "Tennessee Highway Patrol's official monthly " +
+                                "list on tn.gov — one source, so the same " +
+                                "checkpoint can't show up twice. Announcements " +
+                                "can change, and not every checkpoint may appear here.",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(Modifier.height(8.dp))
@@ -255,12 +285,13 @@ fun SettingsScreen(
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Checkpoint Alerts v1.0 — Tennessee only for now",
+                    "Checkpoint Alerts v1.2 — Tennessee only for now",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                Spacer(Modifier.height(24.dp))
+                MadeWithLoveFooter()
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
